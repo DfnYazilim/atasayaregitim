@@ -16,6 +16,9 @@ class _FirstScreenState extends State<FirstScreen> {
   Api api = new Api();
   int durum = 0;
   int selectedServiceType;
+  var _arizaNotu = '';
+  var _ekstraNot = '';
+  final _formKey = GlobalKey<FormState>();
   List<RequestItemsDTO> requestItemsDTOs = new List<RequestItemsDTO>();
   List<ServiceTypes> serviceTypes = new List<ServiceTypes>();
 
@@ -45,7 +48,36 @@ class _FirstScreenState extends State<FirstScreen> {
       });
     }
   }
-
+  _arizaNotuWidget(){
+    return TextFormField(
+      key: ValueKey('arizaNotu'),
+      maxLines: 5,
+      decoration: InputDecoration(labelText: "Arıza notu var ise giriniz"),
+      onSaved: (val) {
+        setState(() {
+          _arizaNotu = val;
+        });
+      },
+      validator: (value) {
+        if (value.isEmpty || value.length<5) {
+          return 'Arıza notu yeterli değil';
+        }
+        return null;
+      },
+    );
+  }
+  _extraNotuWidget(){
+    return TextFormField(
+      key: ValueKey('extraNotu'),
+      maxLines: 5,
+      decoration: InputDecoration(labelText: "Ek bir not var ise giriniz"),
+      onSaved: (val) {
+        setState(() {
+          _ekstraNot = val;
+        });
+      },
+    );
+  }
   _listRequestItems() {
     return ListView.builder(
         itemCount: requestItemsDTOs.length,
@@ -62,13 +94,48 @@ class _FirstScreenState extends State<FirstScreen> {
     if (durum == 0) {
       return _myPool();
     } else {
-      return _listDropdown();
+      return
+        Padding(
+          padding: EdgeInsets.all(10),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: _listDropdown(),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: _arizaNotuWidget(),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: _extraNotuWidget(),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: RaisedButton(
+                    color: Colors.blue,
+                    child: Text(
+                      "Kaydet",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onPressed: () {
+//                      _trySubmit();
+                    },
+                  ),
+                ),
+
+              ],
+            ),
+          ),
+        );
     }
   }
 
   _listDropdown() {
     return DropdownButton(
-
       items: serviceTypes
           .map((item) => DropdownMenuItem(
                 child: Text(item.name),
@@ -81,7 +148,6 @@ class _FirstScreenState extends State<FirstScreen> {
           selectedServiceType = i;
         });
       },
-
       isExpanded: true,
       hint: Text("Servis tipi"),
     );
