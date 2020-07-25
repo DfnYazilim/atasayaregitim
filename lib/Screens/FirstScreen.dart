@@ -1,6 +1,5 @@
 import 'package:atasayaregitim/Helper/Api.dart';
 import 'package:atasayaregitim/Models/DTO/GetMyWorkPoolDTO.dart';
-import 'package:atasayaregitim/Models/ItemTypes.dart';
 import 'package:flutter/material.dart';
 
 class FirstScreen extends StatefulWidget {
@@ -69,7 +68,7 @@ class _FirstScreenState extends State<FirstScreen> {
     if (myPool.requestStatusId == 2) {
       return InkWell(
         onTap: () {
-          _isBaslat();
+          _isBaslat(myPool);
         },
         child: Icon(
           Icons.play_arrow,
@@ -81,13 +80,13 @@ class _FirstScreenState extends State<FirstScreen> {
     }
   }
 
-  _isBaslat() {
+  _isBaslat(GetMyWorkPoolDTO myPool) {
     return showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("İşi başlatmak"),
-            content: Text("qqqqqqqqqqqqq"),
+            title: Text(myPool.companyName),
+            content: Text(myPool.subject),
             actions: [
               FlatButton(
                 child: Text("Vazgeç"),
