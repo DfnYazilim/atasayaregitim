@@ -39,7 +39,6 @@ class Api {
       HttpHeaders.contentTypeHeader: 'application/json'
     }).then((value) {
       if (value.statusCode == 200) {
-        print(json.decode(value.body));
         var users = new List<GetMyWorkPoolDTO>();
         Iterable list = json.decode(value.body);
         users = list.map((model) => GetMyWorkPoolDTO.fromJson(model)).toList();
@@ -86,7 +85,6 @@ class Api {
       HttpHeaders.contentTypeHeader: 'application/json'
     }).then((value) {
       if (value.statusCode == 200) {
-        print(json.decode(value.body));
         var users = new List<RequestItemsDTO>();
         Iterable list = json.decode(value.body);
         users = list.map((model) => RequestItemsDTO.fromJson(model)).toList();

@@ -19,7 +19,6 @@ class Token {
   }
 
   static Future<LoginResultDTO> readToken() async {
-    print("qweqwe");
     var storage = FlutterSecureStorage();
     var value = await storage.read(key: tokenKey);
     LoginResultDTO customerLoginDTO = new LoginResultDTO();
