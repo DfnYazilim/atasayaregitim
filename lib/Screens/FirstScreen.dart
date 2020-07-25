@@ -77,8 +77,29 @@ class _FirstScreenState extends State<FirstScreen> {
           color: Colors.green,
         ),
       );
+    } else if (myPool.requestStatusId == 4) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          InkWell(
+            child: Icon(
+              Icons.stop,
+              color: Colors.red,
+            ),
+          ),
+          InkWell(
+            child: Icon(
+              Icons.pause,
+              color: Colors.orange,
+            ),
+            onTap: () {
+              _bekletmePop(myPool);
+            },
+          ),
+        ],
+      );
     } else {
-      return Text("q");
+      return Text(myPool.requestStatusId.toString());
     }
   }
 
@@ -88,7 +109,8 @@ class _FirstScreenState extends State<FirstScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text(myPool.companyName),
-            content: Text(myPool.subject),
+            content:
+                Text(myPool.subject + " başlatmak istediğinize emin misiniz?"),
             actions: [
               FlatButton(
                 child: Text("Vazgeç"),
@@ -98,8 +120,9 @@ class _FirstScreenState extends State<FirstScreen> {
               ),
               FlatButton(
                 child: Text("Evet"),
-                onPressed: (){
+                onPressed: () {
                   sendProcess(myPool.requestsId);
+                  Navigator.of(context).pop();
                 },
               )
             ],
@@ -111,17 +134,59 @@ class _FirstScreenState extends State<FirstScreen> {
     SendIdDTO dto = new SendIdDTO();
     dto.id = id;
     final result = await api.requestProcess(dto);
-    if(result == 200){
+    if (result == 200) {
       getMyPool();
     } else {
-      Fluttertoast.showToast(
-          msg: "Hata oluştur",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 2,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0);
+      _hataToast();
     }
+  }
+
+  _bekletmePop(GetMyWorkPoolDTO myPool) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(myPool.companyName),
+            content:
+                Text(myPool.subject + " durdurmak istediğinize emin misiniz?"),
+            actions: [
+              FlatButton(
+                child: Text("Vazgeç"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              FlatButton(
+                child: Text("Evet"),
+                onPressed: () {
+                  _bekletmeProcess(myPool.requestsId);
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        });
+  }
+
+  Future<void> _bekletmeProcess(int requestsId) async {
+    SendIdDTO dto = new SendIdDTO();
+    dto.id = requestsId;
+    final result = await api.isBekletProcess(dto);
+    if (result == 200) {
+      getMyPool();
+    } else {
+      _hataToast();
+    }
+  }
+
+  void _hataToast() {
+    Fluttertoast.showToast(
+        msg: "Hata oluştu",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 2,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0);
   }
 }

@@ -60,4 +60,16 @@ class Api {
       return data.statusCode;
     });
   }
+  Future<int> isBekletProcess(SendIdDTO dto) async {
+    return http
+        .post(baseUrl + 'requests/requestWaiting',
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: 'Bearer ' + token,
+        },
+        body: json.encode(dto.id))
+        .then((data) {
+      return data.statusCode;
+    });
+  }
 }
