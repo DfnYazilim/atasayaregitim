@@ -100,7 +100,7 @@ class _FirstScreenState extends State<FirstScreen> {
                   itemBuilder: (context, i) {
                     return ListTile(
                       title: Text(requestItemsDTOs[i].name),
-                      subtitle: Text(requestItemsDTOs[i].amount.toString()),
+                      subtitle: Text(requestItemsDTOs[i].amount.toString() + " adet depoda vardır") ,
                     );
                   }),
             ),
