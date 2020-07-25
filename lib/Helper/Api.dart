@@ -7,7 +7,7 @@ import 'package:atasayaregitim/Models/DTO/LoginResultDTO.dart';
 import 'package:atasayaregitim/Models/ItemTypes.dart';
 import 'package:http/http.dart' as http;
 class Api {
-  static const  baseUrl = "http://192.168.1.248:8081/api/";
+  static const  baseUrl = "http://192.168.1.248:8082/api/";
   String token;
 
   Future<LoginResultDTO> login(LoginDTO loginDTO) async {
@@ -34,6 +34,7 @@ class Api {
     }).then((value) {
 
       if(value.statusCode == 200){
+        print(json.decode(value.body));
         var users = new List<GetMyWorkPoolDTO>();
         Iterable list = json.decode(value.body);
         users = list.map((model) => GetMyWorkPoolDTO.fromJson(model)).toList();

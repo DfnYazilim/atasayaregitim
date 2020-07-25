@@ -39,15 +39,70 @@ class _FirstScreenState extends State<FirstScreen> {
           return ListTile(
             title: Text(myPools[i].companyName),
             subtitle: Text(myPools[i].subject),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.play_arrow,color: Colors.green,),
-                Icon(Icons.play_arrow,color: Colors.green,),
-              ],
-            )
+            trailing: _trailinOlustur(myPools[i]),
+            leading: _iconOlustur(myPools[i]),
           );
-        }
-    );
+        });
+  }
+
+  _iconOlustur(GetMyWorkPoolDTO myPool) {
+    print(myPool.requestStatusId);
+    if (myPool.requestStatusId == 8) {
+      return Icon(
+        Icons.refresh,
+        color: Colors.green,
+      );
+    } else if (myPool.requestStatusId == 2) {
+      return Icon(
+        Icons.play_arrow,
+        color: Colors.orange,
+      );
+    } else {
+      return Icon(
+        Icons.work,
+        color: Colors.deepPurple,
+      );
+    }
+  }
+
+  _trailinOlustur(GetMyWorkPoolDTO myPool) {
+    if (myPool.requestStatusId == 2) {
+      return InkWell(
+        onTap: () {
+          _isBaslat();
+        },
+        child: Icon(
+          Icons.play_arrow,
+          color: Colors.green,
+        ),
+      );
+    } else {
+      return Text("q");
+    }
+  }
+
+  _isBaslat() {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("İşi başlatmak"),
+            content: Text("qqqqqqqqqqqqq"),
+            actions: [
+              FlatButton(
+                child: Text("Vazgeç"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              FlatButton(
+                child: Text("Evet"),
+                onPressed: (){
+                  print('qqqqqqqqqqqqqqq');
+                },
+              )
+            ],
+          );
+        });
   }
 }

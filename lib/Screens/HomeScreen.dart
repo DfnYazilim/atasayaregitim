@@ -57,8 +57,8 @@ class _HomeScreenState extends State<HomeScreen> {
         child: _pageOptions[mainScreenSelectedTab],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.green,
-        unselectedItemColor: Colors.red,
+        selectedItemColor: Theme.of(context).primaryColor,
+        unselectedItemColor: Theme.of(context).accentColor,
         currentIndex: mainScreenSelectedTab,
         onTap: (int index) {
           setState(() {
@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.work),
             title: Text("qwe"),
           ),
           BottomNavigationBarItem(
