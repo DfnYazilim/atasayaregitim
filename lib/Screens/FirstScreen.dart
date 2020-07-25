@@ -82,14 +82,22 @@ class _FirstScreenState extends State<FirstScreen> {
   }
 
   _listRequestItems() {
-    return ListView.builder(
-        itemCount: requestItemsDTOs.length,
-        itemBuilder: (context, i) {
-          return ListTile(
-            title: Text(requestItemsDTOs[i].name),
-            subtitle: Text(requestItemsDTOs[i].amount.toString()),
-          );
-        });
+    if(requestItemsDTOs.length>0){
+      return Expanded(
+        flex: 2,
+        child: ListView.builder(
+            itemCount: requestItemsDTOs.length,
+            itemBuilder: (context, i) {
+              return ListTile(
+                title: Text(requestItemsDTOs[i].name),
+                subtitle: Text(requestItemsDTOs[i].amount.toString()),
+              );
+            }),
+      );
+    } else {
+      return Container();
+    }
+
   }
 
   @override
@@ -103,6 +111,7 @@ class _FirstScreenState extends State<FirstScreen> {
           key: _formKey,
           child: Column(
             children: [
+              _listRequestItems(),
               Expanded(
                 flex: 1,
                 child: _listDropdown(),
@@ -118,19 +127,23 @@ class _FirstScreenState extends State<FirstScreen> {
               Expanded(
                 flex: 1,
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     RaisedButton(
                       color: Colors.red,
-                      child: Text(
-                        "Geri",
-                        style: TextStyle(color: Colors.white),
+                      child: Icon(
+                        Icons.close,
+                        color: Colors.white,
                       ),
                       onPressed: () {
                         setState(() {
                           durum = 0;
+                          getMyPool();
                         });
                       },
+                    ),
+                    SizedBox(
+                      width: 10,
                     ),
                     RaisedButton(
                       color: Colors.blue,
