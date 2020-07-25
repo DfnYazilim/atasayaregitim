@@ -1,6 +1,8 @@
 import 'package:atasayaregitim/Helper/Api.dart';
 import 'package:atasayaregitim/Models/DTO/GetMyWorkPoolDTO.dart';
+import 'package:atasayaregitim/Models/DTO/SendIdDTO.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class FirstScreen extends StatefulWidget {
   @override
@@ -97,11 +99,29 @@ class _FirstScreenState extends State<FirstScreen> {
               FlatButton(
                 child: Text("Evet"),
                 onPressed: (){
-                  print('qqqqqqqqqqqqqqq');
+                  sendProcess(myPool.requestsId);
                 },
               )
             ],
           );
         });
+  }
+
+  Future<void> sendProcess(int id) async {
+    SendIdDTO dto = new SendIdDTO();
+    dto.id = id;
+    final result = await api.requestProcess(dto);
+    if(result == 200){
+      getMyPool();
+    } else {
+      Fluttertoast.showToast(
+          msg: "Hata oluştur",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 2,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
   }
 }

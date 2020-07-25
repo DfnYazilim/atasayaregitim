@@ -55,7 +55,7 @@ class Api {
               HttpHeaders.contentTypeHeader: 'application/json',
               HttpHeaders.authorizationHeader: 'Bearer ' + token,
             },
-            body: json.encode(dto.toJson()))
+            body: json.encode(dto.id))
         .then((data) {
       return data.statusCode;
     });
