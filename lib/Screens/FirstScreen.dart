@@ -47,7 +47,6 @@ class _FirstScreenState extends State<FirstScreen> {
   }
 
   _iconOlustur(GetMyWorkPoolDTO myPool) {
-    print(myPool.requestStatusId);
     if (myPool.requestStatusId == 8) {
       return Icon(
         Icons.refresh,
@@ -97,6 +96,13 @@ class _FirstScreenState extends State<FirstScreen> {
             },
           ),
         ],
+      );
+    } else if (myPool.requestStatusId == 8) {
+      return InkWell(
+        child: Icon(Icons.play_circle_filled,color: Colors.orange,),
+        onTap: (){
+          _isBaslat(myPool);
+        },
       );
     } else {
       return Text(myPool.requestStatusId.toString());
@@ -148,7 +154,7 @@ class _FirstScreenState extends State<FirstScreen> {
           return AlertDialog(
             title: Text(myPool.companyName),
             content:
-                Text(myPool.subject + " durdurmak istediğinize emin misiniz?"),
+            Text(myPool.subject + " durdurmak istediğinize emin misiniz?"),
             actions: [
               FlatButton(
                 child: Text("Vazgeç"),
