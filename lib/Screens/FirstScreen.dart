@@ -41,6 +41,7 @@ class _FirstScreenState extends State<FirstScreen> {
   }
 
   Future<void> getRequestItems(int id) async {
+    requestItemsDTOs.clear();
     final result = await api.getRequestItems(id);
     if (result != null) {
       setState(() {
@@ -82,7 +83,7 @@ class _FirstScreenState extends State<FirstScreen> {
   }
 
   _listRequestItems() {
-    if(requestItemsDTOs.length>0){
+    if (requestItemsDTOs.length > 0) {
       return Expanded(
         flex: 2,
         child: ListView.builder(
@@ -97,7 +98,6 @@ class _FirstScreenState extends State<FirstScreen> {
     } else {
       return Container();
     }
-
   }
 
   @override
@@ -139,6 +139,7 @@ class _FirstScreenState extends State<FirstScreen> {
                         setState(() {
                           durum = 0;
                           getMyPool();
+                          getRequestItems(0);
                         });
                       },
                     ),
