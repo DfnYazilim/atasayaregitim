@@ -85,7 +85,7 @@ class _FirstScreenState extends State<FirstScreen> {
   _listRequestItems() {
     if (requestItemsDTOs.length > 0) {
       return Expanded(
-        flex: 3,
+        flex: 5,
         child: Column(
           children: [
             Expanded(
@@ -101,6 +101,19 @@ class _FirstScreenState extends State<FirstScreen> {
                     return ListTile(
                       title: Text(requestItemsDTOs[i].name),
                       subtitle: Text(requestItemsDTOs[i].amount.toString() + " adet depoda vardır") ,
+                      trailing: Container(
+                        width: 25,
+                        child: TextFormField(
+                          keyboardType: TextInputType.numberWithOptions(),
+                          decoration: InputDecoration(labelText: "#"),
+                          onSaved: (val){
+                            requestItemsDTOs[i].deliveredAmount = double.parse(val);
+                          },
+
+                        ),
+                      ) ,
+
+
                     );
                   }),
             ),
@@ -166,7 +179,7 @@ class _FirstScreenState extends State<FirstScreen> {
                         style: TextStyle(color: Colors.white),
                       ),
                       onPressed: () {
-//                      _trySubmit();
+                      _trySubmit();
                       },
                     )
                   ],
@@ -375,5 +388,11 @@ class _FirstScreenState extends State<FirstScreen> {
         backgroundColor: Colors.red,
         textColor: Colors.white,
         fontSize: 16.0);
+  }
+
+  void _trySubmit() {
+    if (_formKey.currentState.validate()) {
+      _formKey.currentState.save();
+    }
   }
 }
