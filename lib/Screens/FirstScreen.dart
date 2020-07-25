@@ -103,11 +103,11 @@ class _FirstScreenState extends State<FirstScreen> {
                     return ListTile(
                       title: Text(requestItemsDTOs[i].name),
                       subtitle: Text(requestItemsDTOs[i].amount.toString() +
-                          " adet depoda vardır"),
+                          " adet atanan vardır"),
                       trailing: Container(
-                        width: 25,
+                        width: 30,
                         child: TextFormField(
-                          keyboardType: TextInputType.numberWithOptions(),
+                          keyboardType: TextInputType.numberWithOptions(decimal: true),
                           decoration: InputDecoration(labelText: "#"),
                           onSaved: (val) {
                             if (val == "" || val == null) {
@@ -136,7 +136,7 @@ class _FirstScreenState extends State<FirstScreen> {
       return _myPool();
     } else {
       return Padding(
-        padding: EdgeInsets.all(10),
+        padding: EdgeInsets.all(15),
         child: Form(
           key: _formKey,
           child: Column(
@@ -174,7 +174,7 @@ class _FirstScreenState extends State<FirstScreen> {
                       },
                     ),
                     SizedBox(
-                      width: 10,
+                      width: 20,
                     ),
                     RaisedButton(
                       color: Colors.blue,
