@@ -1,6 +1,8 @@
 import 'package:atasayaregitim/Helper/Api.dart';
 import 'package:atasayaregitim/Models/DTO/GetMyWorkPoolDTO.dart';
 import 'package:atasayaregitim/Models/DTO/RequestItemsDTO.dart';
+import 'package:atasayaregitim/Models/DTO/RequestItemsPostDTO.dart';
+import 'package:atasayaregitim/Models/DTO/RequestsDTO.dart';
 import 'package:atasayaregitim/Models/DTO/SendIdDTO.dart';
 import 'package:atasayaregitim/Models/ServiceTypes.dart';
 import 'package:flutter/material.dart';
@@ -90,7 +92,7 @@ class _FirstScreenState extends State<FirstScreen> {
           children: [
             Expanded(
               flex: 1,
-              child : Text("Malzeme Listesi"),
+              child: Text("Malzeme Listesi"),
             ),
             Expanded(
               flex: 3,
@@ -100,24 +102,26 @@ class _FirstScreenState extends State<FirstScreen> {
                   itemBuilder: (context, i) {
                     return ListTile(
                       title: Text(requestItemsDTOs[i].name),
-                      subtitle: Text(requestItemsDTOs[i].amount.toString() + " adet depoda vardır") ,
+                      subtitle: Text(requestItemsDTOs[i].amount.toString() +
+                          " adet depoda vardır"),
                       trailing: Container(
                         width: 25,
                         child: TextFormField(
                           keyboardType: TextInputType.numberWithOptions(),
                           decoration: InputDecoration(labelText: "#"),
-                          onSaved: (val){
-                            requestItemsDTOs[i].deliveredAmount = double.parse(val);
+                          onSaved: (val) {
+                            if (val == "" || val == null) {
+                              requestItemsDTOs[i].deliveredAmount = 0;
+                            } else {
+                              requestItemsDTOs[i].deliveredAmount =
+                                  double.parse(val);
+                            }
                           },
-
                         ),
-                      ) ,
-
-
+                      ),
                     );
                   }),
             ),
-
           ],
         ),
       );
@@ -179,7 +183,7 @@ class _FirstScreenState extends State<FirstScreen> {
                         style: TextStyle(color: Colors.white),
                       ),
                       onPressed: () {
-                      _trySubmit();
+                        _trySubmit();
                       },
                     )
                   ],
@@ -390,9 +394,27 @@ class _FirstScreenState extends State<FirstScreen> {
         fontSize: 16.0);
   }
 
-  void _trySubmit() {
+  Future<void> _trySubmit() async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
+      RequestItemsPostDTO re = new RequestItemsPostDTO();
+      RequestsDTO r = new RequestsDTO();
+
+      r.id = durum;
+      r.expClosing = _arizaNotu;
+      r.note1 = _ekstraNot;
+      r.serviceTypeId = selectedServiceType;
+      re.requests = r;
+
+      re.requestItems = requestItemsDTOs;
+      final result = await api.isKapatma(re);
+      if(result == 200){
+        setState(() {
+          durum = 0;
+        });
+      } else {
+        _hataToast();
+      }
     }
   }
 }

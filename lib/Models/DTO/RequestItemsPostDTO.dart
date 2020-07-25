@@ -18,4 +18,14 @@ class RequestItemsPostDTO {
       });
     }
   }
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    if (this.requests != null) {
+      data['Requests'] = this.requests.toJson();
+    }
+    if (this.requestItems != null) {
+      data['RequestItems'] = this.requestItems.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
 }

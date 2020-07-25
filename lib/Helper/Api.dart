@@ -5,6 +5,7 @@ import 'package:atasayaregitim/Models/DTO/GetMyWorkPoolDTO.dart';
 import 'package:atasayaregitim/Models/DTO/LoginDTO.dart';
 import 'package:atasayaregitim/Models/DTO/LoginResultDTO.dart';
 import 'package:atasayaregitim/Models/DTO/RequestItemsDTO.dart';
+import 'package:atasayaregitim/Models/DTO/RequestItemsPostDTO.dart';
 import 'package:atasayaregitim/Models/DTO/SendIdDTO.dart';
 import 'package:atasayaregitim/Models/ItemTypes.dart';
 import 'package:atasayaregitim/Models/ServiceTypes.dart';
@@ -113,6 +114,19 @@ class Api {
       } else {
         return null;
       }
+    });
+  }
+
+  Future<int> isKapatma(RequestItemsPostDTO dto) async {
+    return http
+        .post(baseUrl + 'requests/requestClosingAndTransfer',
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: 'Bearer ' + token,
+        },
+        body: json.encode(dto.toJson()))
+        .then((data) {
+      return data.statusCode;
     });
   }
 }
