@@ -85,17 +85,26 @@ class _FirstScreenState extends State<FirstScreen> {
   _listRequestItems() {
     if (requestItemsDTOs.length > 0) {
       return Expanded(
-        flex: 2,
+        flex: 3,
         child: Column(
           children: [
-            ListView.builder(
-                itemCount: requestItemsDTOs.length,
-                itemBuilder: (context, i) {
-                  return ListTile(
-                    title: Text(requestItemsDTOs[i].name),
-                    subtitle: Text(requestItemsDTOs[i].amount.toString()),
-                  );
-                }),
+            Expanded(
+              flex: 1,
+              child : Text("Malzeme Listesi"),
+            ),
+            Expanded(
+              flex: 3,
+              child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: requestItemsDTOs.length,
+                  itemBuilder: (context, i) {
+                    return ListTile(
+                      title: Text(requestItemsDTOs[i].name),
+                      subtitle: Text(requestItemsDTOs[i].amount.toString()),
+                    );
+                  }),
+            ),
+
           ],
         ),
       );
