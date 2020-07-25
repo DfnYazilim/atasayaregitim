@@ -115,15 +115,30 @@ class _FirstScreenState extends State<FirstScreen> {
                 ),
                 Expanded(
                   flex: 1,
-                  child: RaisedButton(
-                    color: Colors.blue,
-                    child: Text(
-                      "Kaydet",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    onPressed: () {
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      RaisedButton(
+                        color: Colors.red,
+                        child: Text(
+                          "Geri",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () {
 //                      _trySubmit();
-                    },
+                        },
+                      ),
+                      RaisedButton(
+                        color: Colors.blue,
+                        child: Text(
+                          "Kaydet",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () {
+//                      _trySubmit();
+                        },
+                      )
+                    ],
                   ),
                 ),
 
