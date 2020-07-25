@@ -1,6 +1,8 @@
 import 'package:atasayaregitim/Helper/Api.dart';
 import 'package:atasayaregitim/Models/DTO/GetMyWorkPoolDTO.dart';
+import 'package:atasayaregitim/Models/DTO/RequestItemsDTO.dart';
 import 'package:atasayaregitim/Models/DTO/SendIdDTO.dart';
+import 'package:atasayaregitim/Models/ServiceTypes.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -12,6 +14,10 @@ class FirstScreen extends StatefulWidget {
 class _FirstScreenState extends State<FirstScreen> {
   List<GetMyWorkPoolDTO> myPools = new List<GetMyWorkPoolDTO>();
   Api api = new Api();
+  int durum = 0;
+  int selectedServiceType;
+  List<RequestItemsDTO> requestItemsDTOs = new List<RequestItemsDTO>();
+  List<ServiceTypes> serviceTypes = new List<ServiceTypes>();
 
   Future<void> getMyPool() async {
     final result = await api.getMyWorkPool();
@@ -22,13 +28,68 @@ class _FirstScreenState extends State<FirstScreen> {
     }
   }
 
+  Future<void> getServiceTypes() async {
+    final result = await api.getServiceTypes();
+    if (result != null) {
+      setState(() {
+        serviceTypes = result;
+      });
+    }
+  }
+
+  Future<void> getRequestItems(int id) async {
+    final result = await api.getRequestItems(id);
+    if (result != null) {
+      setState(() {
+        requestItemsDTOs = result;
+      });
+    }
+  }
+
+  _listRequestItems() {
+    return ListView.builder(
+        itemCount: requestItemsDTOs.length,
+        itemBuilder: (context, i) {
+          return ListTile(
+            title: Text(requestItemsDTOs[i].name),
+            subtitle: Text(requestItemsDTOs[i].amount.toString()),
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return _myPool();
+    if (durum == 0) {
+      return _myPool();
+    } else {
+      return _listDropdown();
+    }
+  }
+
+  _listDropdown() {
+    return DropdownButton(
+
+      items: serviceTypes
+          .map((item) => DropdownMenuItem(
+                child: Text(item.name),
+                value: item.id,
+              ))
+          .toList(),
+      value: selectedServiceType,
+      onChanged: (i) {
+        setState(() {
+          selectedServiceType = i;
+        });
+      },
+
+      isExpanded: true,
+      hint: Text("Servis tipi"),
+    );
   }
 
   @override
   void initState() {
+    getServiceTypes();
     getMyPool();
     super.initState();
   }
@@ -85,6 +146,12 @@ class _FirstScreenState extends State<FirstScreen> {
               Icons.stop,
               color: Colors.red,
             ),
+            onTap: () {
+              setState(() {
+                durum = myPool.requestsId;
+                getRequestItems(durum);
+              });
+            },
           ),
           InkWell(
             child: Icon(
@@ -99,8 +166,11 @@ class _FirstScreenState extends State<FirstScreen> {
       );
     } else if (myPool.requestStatusId == 8) {
       return InkWell(
-        child: Icon(Icons.play_circle_filled,color: Colors.orange,),
-        onTap: (){
+        child: Icon(
+          Icons.play_circle_filled,
+          color: Colors.orange,
+        ),
+        onTap: () {
           _isBaslat(myPool);
         },
       );
@@ -154,7 +224,7 @@ class _FirstScreenState extends State<FirstScreen> {
           return AlertDialog(
             title: Text(myPool.companyName),
             content:
-            Text(myPool.subject + " durdurmak istediğinize emin misiniz?"),
+                Text(myPool.subject + " durdurmak istediğinize emin misiniz?"),
             actions: [
               FlatButton(
                 child: Text("Vazgeç"),
