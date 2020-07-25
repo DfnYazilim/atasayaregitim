@@ -48,7 +48,8 @@ class _FirstScreenState extends State<FirstScreen> {
       });
     }
   }
-  _arizaNotuWidget(){
+
+  _arizaNotuWidget() {
     return TextFormField(
       key: ValueKey('arizaNotu'),
       maxLines: 5,
@@ -59,14 +60,15 @@ class _FirstScreenState extends State<FirstScreen> {
         });
       },
       validator: (value) {
-        if (value.isEmpty || value.length<5) {
+        if (value.isEmpty || value.length < 5) {
           return 'Arıza notu yeterli değil';
         }
         return null;
       },
     );
   }
-  _extraNotuWidget(){
+
+  _extraNotuWidget() {
     return TextFormField(
       key: ValueKey('extraNotu'),
       maxLines: 5,
@@ -78,6 +80,7 @@ class _FirstScreenState extends State<FirstScreen> {
       },
     );
   }
+
   _listRequestItems() {
     return ListView.builder(
         itemCount: requestItemsDTOs.length,
@@ -94,58 +97,58 @@ class _FirstScreenState extends State<FirstScreen> {
     if (durum == 0) {
       return _myPool();
     } else {
-      return
-        Padding(
-          padding: EdgeInsets.all(10),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: _listDropdown(),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: _arizaNotuWidget(),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: _extraNotuWidget(),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      RaisedButton(
-                        color: Colors.red,
-                        child: Text(
-                          "Geri",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        onPressed: () {
-//                      _trySubmit();
-                        },
+      return Padding(
+        padding: EdgeInsets.all(10),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              Expanded(
+                flex: 1,
+                child: _listDropdown(),
+              ),
+              Expanded(
+                flex: 2,
+                child: _arizaNotuWidget(),
+              ),
+              Expanded(
+                flex: 2,
+                child: _extraNotuWidget(),
+              ),
+              Expanded(
+                flex: 1,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    RaisedButton(
+                      color: Colors.red,
+                      child: Text(
+                        "Geri",
+                        style: TextStyle(color: Colors.white),
                       ),
-                      RaisedButton(
-                        color: Colors.blue,
-                        child: Text(
-                          "Kaydet",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        onPressed: () {
+                      onPressed: () {
+                        setState(() {
+                          durum = 0;
+                        });
+                      },
+                    ),
+                    RaisedButton(
+                      color: Colors.blue,
+                      child: Text(
+                        "Kaydet",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onPressed: () {
 //                      _trySubmit();
-                        },
-                      )
-                    ],
-                  ),
+                      },
+                    )
+                  ],
                 ),
-
-              ],
-            ),
+              ),
+            ],
           ),
-        );
+        ),
+      );
     }
   }
 
