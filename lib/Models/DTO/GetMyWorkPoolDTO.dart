@@ -6,7 +6,7 @@ class GetMyWorkPoolDTO {
   int id;
   String subject;
   String name;
-  int priority;
+  double priority;
   int requestStatusId;
   String userName;
   int date;

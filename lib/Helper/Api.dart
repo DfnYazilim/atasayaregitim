@@ -15,8 +15,6 @@ class Api {
         .post(baseUrl + 'auth/login',
         headers: {HttpHeaders.contentTypeHeader: 'application/json'}, body: json.encode(loginDTO.toJson()))
         .then((data) {
-      print(json.encode(loginDTO.toJson()));
-      print(data.statusCode);
       if (data.statusCode == 200) {
         LoginResultDTO c = LoginResultDTO.fromJson(jsonDecode(data.body));
         return c;
@@ -39,7 +37,6 @@ class Api {
         var users = new List<GetMyWorkPoolDTO>();
         Iterable list = json.decode(value.body);
         users = list.map((model) => GetMyWorkPoolDTO.fromJson(model)).toList();
-        print(users);
         return users;
       } else {
         return null;

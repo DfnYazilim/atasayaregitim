@@ -39,7 +39,13 @@ class _FirstScreenState extends State<FirstScreen> {
           return ListTile(
             title: Text(myPools[i].companyName),
             subtitle: Text(myPools[i].subject),
-            trailing: Icon(Icons.play_arrow,color: Colors.green,),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.play_arrow,color: Colors.green,),
+                Icon(Icons.play_arrow,color: Colors.green,),
+              ],
+            )
           );
         }
     );
