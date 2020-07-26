@@ -52,10 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: WillPopScope(
-        onWillPop: () async => false,
-        child: _pageOptions[mainScreenSelectedTab],
-      ),
+      body: _pageOptions[mainScreenSelectedTab],
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: Theme.of(context).primaryColor,
         unselectedItemColor: Theme.of(context).accentColor,

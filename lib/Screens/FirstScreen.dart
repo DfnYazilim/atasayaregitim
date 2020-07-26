@@ -107,7 +107,8 @@ class _FirstScreenState extends State<FirstScreen> {
                       trailing: Container(
                         width: 30,
                         child: TextFormField(
-                          keyboardType: TextInputType.numberWithOptions(decimal: true),
+                          keyboardType:
+                              TextInputType.numberWithOptions(decimal: true),
                           decoration: InputDecoration(labelText: "#"),
                           onSaved: (val) {
                             if (val == "" || val == null) {
@@ -140,6 +141,7 @@ class _FirstScreenState extends State<FirstScreen> {
         child: Form(
           key: _formKey,
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               _listRequestItems(),
               Expanded(
@@ -408,7 +410,7 @@ class _FirstScreenState extends State<FirstScreen> {
 
       re.requestItems = requestItemsDTOs;
       final result = await api.isKapatma(re);
-      if(result == 200){
+      if (result == 200) {
         setState(() {
           durum = 0;
         });
