@@ -26,7 +26,16 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return
+      GestureDetector(
+        onTap: () {
+      FocusScopeNode currentFocus = FocusScope.of(context);
+      if (!currentFocus.hasPrimaryFocus) {
+        currentFocus.unfocus();
+      }
+    },
+    child :
+      MaterialApp(
       onGenerateRoute: RouteGenerator.generateRoute,
       initialRoute: str != null ? "/" : "/login",
       navigatorKey: navigatorKey,
@@ -38,6 +47,7 @@ class MyApp extends StatelessWidget {
         accentColor: Colors.deepPurple,
         fontFamily: 'Exo',
         visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
       ),
 
     );

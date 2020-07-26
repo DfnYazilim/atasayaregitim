@@ -17,7 +17,6 @@ import 'package:http/http.dart' as http;
 
 class Api {
   static const baseUrl = "http://192.168.1.248:8082/api/";
-//  static const baseUrl = "http://atasayarservis.com:8081/api/";
   String token;
 
   Future<LoginResultDTO> login(LoginDTO loginDTO) async {
