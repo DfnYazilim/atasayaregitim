@@ -65,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.work),
-            title: Text("qwe"),
+            title: Text("İş Havuzu"),
           ),
           BottomNavigationBarItem(
               icon: Icon(Icons.audiotrack), title: Text("2")),

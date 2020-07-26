@@ -17,6 +17,7 @@ import 'package:http/http.dart' as http;
 
 class Api {
   static const baseUrl = "http://192.168.1.248:8082/api/";
+//  static const baseUrl = "http://atasayarservis.com:8081/api/";
   String token;
 
   Future<LoginResultDTO> login(LoginDTO loginDTO) async {
@@ -101,6 +102,7 @@ class Api {
   }
 
   Future<List<ServiceTypes>> getServiceTypes() async {
+
     final tkn = await Token.readToken();
     if (tkn != null) {
       token = tkn.token;
@@ -133,19 +135,20 @@ class Api {
       return data.statusCode;
     });
   }
-  Future<List<Company>> getCompanies() async {
+  Future<List<Company>> getCompanies(String search) async {
     final tkn = await Token.readToken();
     if (tkn != null) {
       token = tkn.token;
     }
     return http
-        .get(baseUrl + 'Companies/GetAllCustomer', headers: {
+        .get(baseUrl + 'Companies/GetAllCustomer?skip=0&take=10&filter=%5B%5B%22name%22%2C%22contains%22%2C%22'+ search +'%22%5D%5D&sort=%5B%7B"selector"%3A"name"%2C"desc"%3Afalse%7D%5D', headers: {
       HttpHeaders.authorizationHeader: 'Bearer ' + token,
       HttpHeaders.contentTypeHeader: 'application/json'
     }).then((value) {
       if (value.statusCode == 200) {
         var users = new List<Company>();
         Iterable list = json.decode(value.body)['data'];
+        print(json.decode(value.body)['data']);
         users = list.map((model) => Company.fromJson(model)).toList();
         return users;
       } else {
@@ -153,13 +156,13 @@ class Api {
       }
     });
   }
-  Future<List<Project>> getProjects() async {
+  Future<List<Project>> getProjects(String search) async {
     final tkn = await Token.readToken();
     if (tkn != null) {
       token = tkn.token;
     }
     return http
-        .get(baseUrl + 'Projects', headers: {
+        .get(baseUrl + 'projects?skip=0&take=10&filter=%5B%5B%22name%22%2C%22contains%22%2C%22'+ search +'%22%5D%5D&sort=%5B%7B"selector"%3A"name"%2C"desc"%3Afalse%7D%5D', headers: {
       HttpHeaders.authorizationHeader: 'Bearer ' + token,
       HttpHeaders.contentTypeHeader: 'application/json'
     }).then((value) {

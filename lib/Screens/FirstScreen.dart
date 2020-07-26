@@ -10,6 +10,7 @@ import 'package:atasayaregitim/Models/DTO/SendIdDTO.dart';
 import 'package:atasayaregitim/Models/Projects.dart';
 import 'package:atasayaregitim/Models/RequestType.dart';
 import 'package:atasayaregitim/Models/ServiceTypes.dart';
+import 'package:atasayaregitim/Widgets/LoadingWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -19,20 +20,23 @@ class FirstScreen extends StatefulWidget {
 }
 
 class _FirstScreenState extends State<FirstScreen> {
+  final _priceFocusNode = FocusNode();
   List<GetMyWorkPoolDTO> myPools = new List<GetMyWorkPoolDTO>();
   Api api = new Api();
   int durum = 0;
-  int selectedServiceType,
-      selectedCompany,
-      selectedProject,
-      selectedRequestType,
-      selectedRequestTypeItemId;
+  bool _isLoading = false;
+  Company selectedCompany = new Company();
+  Project selectedProject = new Project();
+  int selectedServiceType, selectedRequestType, selectedRequestTypeItemId;
   var _arizaNotu = '';
   var _ekstraNot = '';
   var _yeniTalepKonuText = '';
   var _yeniTalepAciklamaText = '';
   final _formKey = GlobalKey<FormState>();
   final _formKeyYeni = GlobalKey<FormState>();
+  bool _cariArama = false;
+  bool _projeArama = false;
+  GetMyWorkPoolDTO _talepDetayObje = new GetMyWorkPoolDTO();
   List<RequestItemsDTO> requestItemsDTOs = new List<RequestItemsDTO>();
   List<ServiceTypes> serviceTypes = new List<ServiceTypes>();
   List<Company> companies = new List<Company>();
@@ -50,15 +54,24 @@ class _FirstScreenState extends State<FirstScreen> {
   }
 
   Future<void> getServiceTypes() async {
+    setState(() {
+      _isLoading = true;
+    });
     final result = await api.getServiceTypes();
     if (result != null) {
       setState(() {
         serviceTypes = result;
       });
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<void> getRequestItems(int id) async {
+    setState(() {
+      _isLoading = true;
+    });
     requestItemsDTOs.clear();
     final result = await api.getRequestItems(id);
     if (result != null) {
@@ -66,13 +79,20 @@ class _FirstScreenState extends State<FirstScreen> {
         requestItemsDTOs = result;
       });
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   _arizaNotuWidget() {
     return TextFormField(
       key: ValueKey('arizaNotu'),
       maxLines: 5,
+      keyboardType: TextInputType.multiline,
       decoration: InputDecoration(labelText: "Arıza notu var ise giriniz"),
+      onFieldSubmitted: (_) {
+        FocusScope.of(context).requestFocus(_priceFocusNode);
+      },
       onSaved: (val) {
         setState(() {
           _arizaNotu = val;
@@ -149,6 +169,9 @@ class _FirstScreenState extends State<FirstScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if(_isLoading){
+      return ApmLoadingWidget();
+    }
     if (durum == 0) {
       return _myPool();
     } else if (durum == -1) {
@@ -191,12 +214,39 @@ class _FirstScreenState extends State<FirstScreen> {
             padding: EdgeInsets.all(15),
             child: Form(
               key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+              child: ListView(
                 children: [
-                  _listRequestItems(),
+                     Card(
+                      semanticContainer: true,
+                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                      elevation: 10,
+                      margin: EdgeInsets.all(10),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50)),
+                      child: Padding(
+                        padding: EdgeInsets.all(15),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text("#" + _talepDetayObje.requestsId.toString()),
+                            Text(_talepDetayObje.companyName.substring(
+                                    0,
+                                    _talepDetayObje.companyName.length > 30
+                                        ? 30
+                                        : _talepDetayObje.companyName.length) +
+                                " ... "),
+                            Text(_talepDetayObje.subject),
+                          ],
+                        ),
+                      ),
+                      color: Colors.white,
+
+                  ),
                   Expanded(
-                    flex: 1,
+                    child: _listRequestItems(),
+                  ),
+                  Expanded(
+                    flex: 2,
                     child: _listDropdown(),
                   ),
                   Expanded(
@@ -207,6 +257,11 @@ class _FirstScreenState extends State<FirstScreen> {
                     flex: 2,
                     child: _extraNotuWidget(),
                   ),
+
+//                  Expanded(
+//                    flex: 1,
+//                    child: Container(),
+//                  ),
                 ],
               ),
             ),
@@ -241,29 +296,52 @@ class _FirstScreenState extends State<FirstScreen> {
   }
 
   Widget _myPool() {
-    return Scaffold(
-      body: ListView.builder(
-          itemCount: myPools.length,
-          itemBuilder: (context, i) {
-            return ListTile(
-              title: Text(myPools[i].companyName),
-              subtitle: Text(myPools[i].subject),
-              trailing: _trailinOlustur(myPools[i]),
-              leading: _iconOlustur(myPools[i]),
-            );
-          }),
-      floatingActionButton: RaisedButton(
-        child: Icon(
-          Icons.add,
-          color: Colors.white,
+    if (myPools.length > 0) {
+      return Scaffold(
+        body: RefreshIndicator(
+          onRefresh: getMyPool,
+          child: ListView.builder(
+              itemCount: myPools.length,
+              itemBuilder: (context, i) {
+                return ListTile(
+                  title: Text(myPools[i].companyName),
+                  subtitle: Text(myPools[i].subject),
+                  trailing: _trailinOlustur(myPools[i]),
+                  leading: _iconOlustur(myPools[i]),
+                );
+              }),
         ),
-        color: Theme.of(context).primaryColor,
-        onPressed: () {
-          _yeniTalepOncesi();
-        },
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-      ),
-    );
+        floatingActionButton: RaisedButton(
+          child: Icon(
+            Icons.add,
+            color: Colors.white,
+          ),
+          color: Theme.of(context).primaryColor,
+          onPressed: () {
+            _yeniTalepOncesi();
+          },
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+        ),
+      );
+    } else {
+      return Scaffold(
+          floatingActionButton: RaisedButton(
+            child: Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
+            color: Theme.of(context).primaryColor,
+            onPressed: () {
+              _yeniTalepOncesi();
+            },
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+          ),
+          body: Center(
+            child: Text("Tarafınıza iş atanmamıştır veya sayfanızı yenileyin"),
+          ));
+    }
   }
 
   _yeniTalepOncesi() {
@@ -271,8 +349,6 @@ class _FirstScreenState extends State<FirstScreen> {
       durum = -1;
     });
 
-    _getCompanies();
-    _getProjects();
     _getRequestTypes();
   }
 
@@ -317,6 +393,7 @@ class _FirstScreenState extends State<FirstScreen> {
             ),
             onTap: () {
               setState(() {
+                _talepDetayObje = myPool;
                 durum = myPool.requestsId;
                 getRequestItems(durum);
               });
@@ -460,8 +537,6 @@ class _FirstScreenState extends State<FirstScreen> {
 
       re.requestItems = requestItemsDTOs;
 
-      print(requestItemsDTOs[0].deliveredAmount);
-      print(requestItemsDTOs[1].deliveredAmount);
       final result = await api.isKapatma(re);
       if (result == 200) {
         setState(() {
@@ -480,78 +555,54 @@ class _FirstScreenState extends State<FirstScreen> {
       NewRequestDTO dto = new NewRequestDTO();
       dto.itemTypeId = selectedRequestTypeItemId;
       dto.subject = _yeniTalepKonuText;
-      dto.projectsId = selectedProject;
+      dto.projectsId = selectedProject.id;
       dto.expRequest = _yeniTalepAciklamaText;
-      dto.companyId = selectedCompany;
+      dto.companyId = selectedCompany.id;
       final result = await api.newRequest(dto);
       if (result == 201) {
         _basariliToast("Yeni talep girildi");
-        getMyPool();
-        setState(() {
-          durum = 0;
-          selectedServiceType = selectedCompany = selectedProject =
-              selectedRequestType = selectedRequestTypeItemId = null;
-          _yeniTalepAciklamaText = '';
-          _yeniTalepKonuText = '';
-        });
+        _formSifirla();
       } else {
         _hataToast();
       }
     }
   }
 
-  Widget _yeniTalepOlustur() {
-    return Form(
-      key: _formKeyYeni,
-      child: Padding(
-        padding: EdgeInsets.all(15),
-        child: Column(
-          children: [
-            Expanded(
-              flex: 1,
-              child: _yeniTalepCari(),
-            ),
-            Expanded(
-              flex: 1,
-              child: _yeniTalepProje(),
-            ),
-            Expanded(
-              flex: 1,
-              child: _yeniTalepTalepTipi(),
-            ),
-            Expanded(
-              flex: 1,
-              child: _yeniTalepUrunTuru(),
-            ),
-            Expanded(
-              flex: 1,
-              child: _yeniTalepKonu(),
-            ),
-            Expanded(
-              flex: 1,
-              child: _yeniTalepAciklama(),
-            ),
-            Expanded(
-              flex: 1,
-              child: _yeniTalepButtons(),
-            ),
-          ],
-        ),
-      ),
-    );
+  _formSifirla() {
+    getMyPool();
+    setState(() {
+      getRequestItems(0);
+      durum = 0;
+      selectedProject = new Project();
+      selectedCompany = new Company();
+      selectedServiceType =
+          selectedRequestType = selectedRequestTypeItemId = null;
+      _yeniTalepAciklamaText = '';
+      _yeniTalepKonuText = '';
+    });
   }
 
-  Future<void> _getCompanies() async {
-    final result = await api.getCompanies();
-    if (result != null) {
+  Widget _yeniTalepOlustur() {
+    return _yeniTalepForm();
+  }
+
+  Future<void> _getCompanies(String arama) async {
+    if (arama.length > 2) {
+      final result = await api.getCompanies(arama);
+      if (result != null) {
+        setState(() {
+          companies = result;
+        });
+      }
+    } else {
       setState(() {
-        companies = result;
+        companies = new List<Company>();
       });
     }
   }
 
-  Future<void> _getProjects() async {
-    final result = await api.getProjects();
+  Future<void> _getProjects(String val) async {
+    final result = await api.getProjects(val);
     if (result != null) {
       setState(() {
         projects = result;
@@ -578,40 +629,30 @@ class _FirstScreenState extends State<FirstScreen> {
   }
 
   _yeniTalepCari() {
-    return DropdownButton(
-      items: companies
-          .map((item) => DropdownMenuItem(
-                child: Text(item.name),
-                value: item.id,
-              ))
-          .toList(),
-      value: selectedCompany,
-      onChanged: (i) {
+    return ListTile(
+      onTap: () {
         setState(() {
-          selectedCompany = i;
+          _cariArama = true;
         });
       },
-      isExpanded: true,
-      hint: Text("Cari Seçiniz"),
+      leading: Icon(Icons.search),
+      title: selectedCompany.name != null
+          ? Text(selectedCompany.name)
+          : Text("Cari seçiniz"),
     );
   }
 
   _yeniTalepProje() {
-    return DropdownButton(
-      items: projects
-          .map((item) => DropdownMenuItem(
-                child: Text(item.name),
-                value: item.id,
-              ))
-          .toList(),
-      value: selectedProject,
-      onChanged: (i) {
+    return ListTile(
+      onTap: () {
         setState(() {
-          selectedProject = i;
+          _projeArama = true;
         });
       },
-      isExpanded: true,
-      hint: Text("Proje"),
+      leading: Icon(Icons.search),
+      title: selectedProject.name != null
+          ? Text(selectedProject.name)
+          : Text("Proje seçiniz"),
     );
   }
 
@@ -651,7 +692,7 @@ class _FirstScreenState extends State<FirstScreen> {
         });
       },
       isExpanded: true,
-      hint: Text("Proje"),
+      hint: Text("Ürün Türü"),
     );
   }
 
@@ -703,9 +744,7 @@ class _FirstScreenState extends State<FirstScreen> {
           ),
           onPressed: () {
             setState(() {
-              durum = 0;
-              getMyPool();
-              getRequestItems(0);
+              _formSifirla();
             });
           },
         ),
@@ -724,5 +763,136 @@ class _FirstScreenState extends State<FirstScreen> {
         )
       ],
     );
+  }
+
+  Widget _yeniTalepForm() {
+    if (_cariArama == true) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Expanded(
+            flex: 3,
+            child: TextFormField(
+              key: ValueKey('cariArama'),
+              maxLines: 5,
+              decoration: InputDecoration(labelText: "En az 3 hane (Cari)"),
+              onChanged: (val) {
+                _getCompanies(val);
+              },
+            ),
+          ),
+          Expanded(
+            flex: 10,
+            child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: companies.length,
+                itemBuilder: (context, i) {
+                  return ListTile(
+                    title: Text(companies[i].name),
+                    onTap: () {
+                      setState(() {
+                        _cariArama = false;
+                        selectedCompany = companies[i];
+                      });
+                    },
+                  );
+                }),
+          ),
+          Expanded(
+              flex: 1,
+              child: RaisedButton(
+                onPressed: () {
+                  setState(() {
+                    _cariArama = false;
+                  });
+                },
+                child: Text("Geri"),
+              )),
+        ],
+      );
+    } else if (_projeArama == true) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Expanded(
+            flex: 3,
+            child: TextFormField(
+              key: ValueKey('projeArama'),
+              maxLines: 5,
+              decoration: InputDecoration(labelText: "En az 3 hane (Proje)"),
+              onChanged: (val) {
+                _getProjects(val);
+              },
+            ),
+          ),
+          Expanded(
+            flex: 10,
+            child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: projects.length,
+                itemBuilder: (context, i) {
+                  return ListTile(
+                    title: Text(projects[i].name),
+                    onTap: () {
+                      setState(() {
+                        _projeArama = false;
+                        selectedProject = projects[i];
+                      });
+                    },
+                  );
+                }),
+          ),
+          Expanded(
+              flex: 1,
+              child: RaisedButton(
+                onPressed: () {
+                  setState(() {
+                    _projeArama = false;
+                  });
+                },
+                child: Text("Geri"),
+              )),
+        ],
+      );
+    } else {
+      return Form(
+        key: _formKeyYeni,
+        child: Padding(
+          padding: EdgeInsets.all(15),
+          child: Column(
+            children: [
+              Expanded(
+                flex: 1,
+                child: _yeniTalepCari(),
+              ),
+              Expanded(
+                flex: 1,
+                child: _yeniTalepProje(),
+              ),
+              Expanded(
+                flex: 1,
+                child: _yeniTalepTalepTipi(),
+              ),
+              Expanded(
+                flex: 1,
+                child: _yeniTalepUrunTuru(),
+              ),
+              Expanded(
+                flex: 1,
+                child: _yeniTalepKonu(),
+              ),
+              Expanded(
+                flex: 1,
+                child: _yeniTalepAciklama(),
+              ),
+              Expanded(
+                flex: 1,
+                child: _yeniTalepButtons(),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
   }
 }

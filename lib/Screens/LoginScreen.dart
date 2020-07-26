@@ -21,22 +21,22 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: EdgeInsets.all(15),
+        padding: EdgeInsets.all(50),
         child: Center(
           child: Form(
             key: _formKey,
             child: Column(
               children: [
                 Expanded(
-                    flex: 2,
+                    flex:5,
                     child: Image(
-                      height: MediaQuery.of(context).size.height * 0.5,
-                      width: MediaQuery.of(context).size.width * 0.5,
+                      height: MediaQuery.of(context).size.height * 0.7,
+                      width: MediaQuery.of(context).size.width * 0.7,
                       image: CachedNetworkImageProvider(
                           "http://atasayarservis.com/assets/img/apm-mavi-1.jpg"),
                     )),
                 Expanded(
-                  flex: 1,
+                  flex: 3,
                   child: TextFormField(
                     key: ValueKey('email'),
                     keyboardType: TextInputType.emailAddress,
@@ -56,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 Expanded(
                   key: ValueKey('password'),
-                  flex: 1,
+                  flex: 3,
                   child: TextFormField(
                     obscureText: true,
                     decoration: InputDecoration(labelText: "Şifreniz"),
@@ -73,18 +73,28 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                 ),
+
                 Expanded(
                   flex: 1,
-                  child: RaisedButton(
-                    color: Colors.blue,
-                    child: Text(
-                      "Giriş",
-                      style: TextStyle(color: Colors.white),
+                  child:
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 50,
+                    child: RaisedButton(
+                      color: Colors.blue,
+                      child: Text(
+                        "Giriş",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onPressed: () {
+                        _trySubmit();
+                      },
                     ),
-                    onPressed: () {
-                      _trySubmit();
-                    },
                   ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Container(),
                 ),
               ],
             ),

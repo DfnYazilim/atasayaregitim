@@ -34,9 +34,12 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.pink,
+        backgroundColor: Colors.green,
         accentColor: Colors.deepPurple,
+        fontFamily: 'Exo',
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
+
     );
   }
 }
