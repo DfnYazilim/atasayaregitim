@@ -92,7 +92,7 @@ class _FirstScreenState extends State<FirstScreen> {
           children: [
             Expanded(
               flex: 1,
-              child: Text("Malzeme Listesi"),
+              child: Text("Malzeme Listesi - " + durum.toString()),
             ),
             Expanded(
               flex: 3,
@@ -110,7 +110,7 @@ class _FirstScreenState extends State<FirstScreen> {
                           keyboardType:
                               TextInputType.numberWithOptions(decimal: true),
                           decoration: InputDecoration(labelText: "#"),
-                          onSaved: (val) {
+                          onChanged: (val) {
                             if (val == "" || val == null) {
                               requestItemsDTOs[i].deliveredAmount = 0;
                             } else {
@@ -140,59 +140,62 @@ class _FirstScreenState extends State<FirstScreen> {
         padding: EdgeInsets.all(15),
         child: Form(
           key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _listRequestItems(),
-              Expanded(
-                flex: 1,
-                child: _listDropdown(),
-              ),
-              Expanded(
-                flex: 2,
-                child: _arizaNotuWidget(),
-              ),
-              Expanded(
-                flex: 2,
-                child: _extraNotuWidget(),
-              ),
-              Expanded(
-                flex: 1,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    RaisedButton(
-                      color: Colors.red,
-                      child: Icon(
-                        Icons.close,
-                        color: Colors.white,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          durum = 0;
-                          getMyPool();
-                          getRequestItems(0);
-                        });
-                      },
-                    ),
-                    SizedBox(
-                      width: 20,
-                    ),
-                    RaisedButton(
-                      color: Colors.blue,
-                      child: Text(
-                        "Kaydet",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      onPressed: () {
-                        _trySubmit();
-                      },
-                    )
-                  ],
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _listRequestItems(),
+                Expanded(
+                  flex: 1,
+                  child: _listDropdown(),
                 ),
-              ),
-            ],
-          ),
+                Expanded(
+                  flex: 2,
+                  child: _arizaNotuWidget(),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: _extraNotuWidget(),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      RaisedButton(
+                        color: Colors.red,
+                        child: Icon(
+                          Icons.close,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            durum = 0;
+                            getMyPool();
+                            getRequestItems(0);
+                          });
+                        },
+                      ),
+                      SizedBox(
+                        width: 20,
+                      ),
+                      RaisedButton(
+                        color: Colors.blue,
+                        child: Text(
+                          "Kaydet",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () {
+                          _trySubmit();
+                        },
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ) ,
+
         ),
       );
     }
@@ -409,10 +412,14 @@ class _FirstScreenState extends State<FirstScreen> {
       re.requests = r;
 
       re.requestItems = requestItemsDTOs;
+
+      print(requestItemsDTOs[0].deliveredAmount);
+      print(requestItemsDTOs[1].deliveredAmount);
       final result = await api.isKapatma(re);
       if (result == 200) {
         setState(() {
           durum = 0;
+          getMyPool();
         });
       } else {
         _hataToast();
