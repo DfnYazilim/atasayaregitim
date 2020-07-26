@@ -97,6 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _trySubmit() async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
+      FocusScope.of(context).unfocus();
       LoginDTO loginDTO = new LoginDTO();
       loginDTO.password = _password;
       loginDTO.username = _email.trim();

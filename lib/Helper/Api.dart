@@ -1,13 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:atasayaregitim/Helper/Token.dart';
+import 'package:atasayaregitim/Models/Company.dart';
 import 'package:atasayaregitim/Models/DTO/GetMyWorkPoolDTO.dart';
+import 'package:atasayaregitim/Models/DTO/ItemTypeByIdDTO.dart';
 import 'package:atasayaregitim/Models/DTO/LoginDTO.dart';
 import 'package:atasayaregitim/Models/DTO/LoginResultDTO.dart';
+import 'package:atasayaregitim/Models/DTO/NewRequestDTO.dart';
 import 'package:atasayaregitim/Models/DTO/RequestItemsDTO.dart';
 import 'package:atasayaregitim/Models/DTO/RequestItemsPostDTO.dart';
 import 'package:atasayaregitim/Models/DTO/SendIdDTO.dart';
-import 'package:atasayaregitim/Models/ItemTypes.dart';
+import 'package:atasayaregitim/Models/Projects.dart';
+import 'package:atasayaregitim/Models/RequestType.dart';
 import 'package:atasayaregitim/Models/ServiceTypes.dart';
 import 'package:http/http.dart' as http;
 
@@ -120,6 +124,99 @@ class Api {
   Future<int> isKapatma(RequestItemsPostDTO dto) async {
     return http
         .post(baseUrl + 'requests/requestClosingAndTransfer',
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: 'Bearer ' + token,
+        },
+        body: json.encode(dto.toJson()))
+        .then((data) {
+      return data.statusCode;
+    });
+  }
+  Future<List<Company>> getCompanies() async {
+    final tkn = await Token.readToken();
+    if (tkn != null) {
+      token = tkn.token;
+    }
+    return http
+        .get(baseUrl + 'Companies/GetAllCustomer', headers: {
+      HttpHeaders.authorizationHeader: 'Bearer ' + token,
+      HttpHeaders.contentTypeHeader: 'application/json'
+    }).then((value) {
+      if (value.statusCode == 200) {
+        var users = new List<Company>();
+        Iterable list = json.decode(value.body)['data'];
+        users = list.map((model) => Company.fromJson(model)).toList();
+        return users;
+      } else {
+        return null;
+      }
+    });
+  }
+  Future<List<Project>> getProjects() async {
+    final tkn = await Token.readToken();
+    if (tkn != null) {
+      token = tkn.token;
+    }
+    return http
+        .get(baseUrl + 'Projects', headers: {
+      HttpHeaders.authorizationHeader: 'Bearer ' + token,
+      HttpHeaders.contentTypeHeader: 'application/json'
+    }).then((value) {
+      if (value.statusCode == 200) {
+        var users = new List<Project>();
+        Iterable list = json.decode(value.body)['data'];
+        users = list.map((model) => Project.fromJson(model)).toList();
+        return users;
+      } else {
+        return null;
+      }
+    });
+  }
+  Future<List<RequestType>> getRequestTypes() async {
+    final tkn = await Token.readToken();
+    if (tkn != null) {
+      token = tkn.token;
+    }
+    return http
+        .get(baseUrl + 'RequestTypes', headers: {
+      HttpHeaders.authorizationHeader: 'Bearer ' + token,
+      HttpHeaders.contentTypeHeader: 'application/json'
+    }).then((value) {
+      if (value.statusCode == 200) {
+        var users = new List<RequestType>();
+        Iterable list = json.decode(value.body)['data'];
+        users = list.map((model) => RequestType.fromJson(model)).toList();
+        return users;
+      } else {
+        return null;
+      }
+    });
+  }
+  Future<List<ItemTypeByIdDTO>> getItemById(int id) async {
+    final tkn = await Token.readToken();
+    if (tkn != null) {
+      token = tkn.token;
+    }
+    return http
+        .get(baseUrl + 'RequestTypes/GetItemById?typeId=' + id.toString(), headers: {
+      HttpHeaders.authorizationHeader: 'Bearer ' + token,
+      HttpHeaders.contentTypeHeader: 'application/json'
+    }).then((value) {
+      if (value.statusCode == 200) {
+        var users = new List<ItemTypeByIdDTO>();
+        Iterable list = json.decode(value.body)['data'];
+        users = list.map((model) => ItemTypeByIdDTO.fromJson(model)).toList();
+        return users;
+      } else {
+        return null;
+      }
+    });
+  }
+
+  Future<int> newRequest(NewRequestDTO dto) async {
+    return http
+        .post(baseUrl + 'requests',
         headers: {
           HttpHeaders.contentTypeHeader: 'application/json',
           HttpHeaders.authorizationHeader: 'Bearer ' + token,

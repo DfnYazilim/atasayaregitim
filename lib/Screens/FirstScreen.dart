@@ -1,9 +1,14 @@
 import 'package:atasayaregitim/Helper/Api.dart';
+import 'package:atasayaregitim/Models/Company.dart';
 import 'package:atasayaregitim/Models/DTO/GetMyWorkPoolDTO.dart';
+import 'package:atasayaregitim/Models/DTO/ItemTypeByIdDTO.dart';
+import 'package:atasayaregitim/Models/DTO/NewRequestDTO.dart';
 import 'package:atasayaregitim/Models/DTO/RequestItemsDTO.dart';
 import 'package:atasayaregitim/Models/DTO/RequestItemsPostDTO.dart';
 import 'package:atasayaregitim/Models/DTO/RequestsDTO.dart';
 import 'package:atasayaregitim/Models/DTO/SendIdDTO.dart';
+import 'package:atasayaregitim/Models/Projects.dart';
+import 'package:atasayaregitim/Models/RequestType.dart';
 import 'package:atasayaregitim/Models/ServiceTypes.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -17,12 +22,23 @@ class _FirstScreenState extends State<FirstScreen> {
   List<GetMyWorkPoolDTO> myPools = new List<GetMyWorkPoolDTO>();
   Api api = new Api();
   int durum = 0;
-  int selectedServiceType;
+  int selectedServiceType,
+      selectedCompany,
+      selectedProject,
+      selectedRequestType,
+      selectedRequestTypeItemId;
   var _arizaNotu = '';
   var _ekstraNot = '';
+  var _yeniTalepKonuText = '';
+  var _yeniTalepAciklamaText = '';
   final _formKey = GlobalKey<FormState>();
+  final _formKeyYeni = GlobalKey<FormState>();
   List<RequestItemsDTO> requestItemsDTOs = new List<RequestItemsDTO>();
   List<ServiceTypes> serviceTypes = new List<ServiceTypes>();
+  List<Company> companies = new List<Company>();
+  List<Project> projects = new List<Project>();
+  List<RequestType> requestTypes = new List<RequestType>();
+  List<ItemTypeByIdDTO> requestTypesById = new List<ItemTypeByIdDTO>();
 
   Future<void> getMyPool() async {
     final result = await api.getMyWorkPool();
@@ -135,69 +151,66 @@ class _FirstScreenState extends State<FirstScreen> {
   Widget build(BuildContext context) {
     if (durum == 0) {
       return _myPool();
+    } else if (durum == -1) {
+      return _yeniTalepOlustur();
     } else {
-      return Padding(
-        padding: EdgeInsets.all(15),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _listRequestItems(),
-                Expanded(
-                  flex: 1,
-                  child: _listDropdown(),
+      return Scaffold(
+          floatingActionButton: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              RaisedButton(
+                color: Colors.red,
+                child: Icon(
+                  Icons.close,
+                  color: Colors.white,
                 ),
-                Expanded(
-                  flex: 2,
-                  child: _arizaNotuWidget(),
+                onPressed: () {
+                  setState(() {
+                    durum = 0;
+                    getMyPool();
+                    getRequestItems(0);
+                  });
+                },
+              ),
+              SizedBox(
+                width: 20,
+              ),
+              RaisedButton(
+                color: Colors.blue,
+                child: Text(
+                  "Kaydet",
+                  style: TextStyle(color: Colors.white),
                 ),
-                Expanded(
-                  flex: 2,
-                  child: _extraNotuWidget(),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      RaisedButton(
-                        color: Colors.red,
-                        child: Icon(
-                          Icons.close,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            durum = 0;
-                            getMyPool();
-                            getRequestItems(0);
-                          });
-                        },
-                      ),
-                      SizedBox(
-                        width: 20,
-                      ),
-                      RaisedButton(
-                        color: Colors.blue,
-                        child: Text(
-                          "Kaydet",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        onPressed: () {
-                          _trySubmit();
-                        },
-                      )
-                    ],
+                onPressed: () {
+                  _trySubmit();
+                },
+              )
+            ],
+          ),
+          body: Padding(
+            padding: EdgeInsets.all(15),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _listRequestItems(),
+                  Expanded(
+                    flex: 1,
+                    child: _listDropdown(),
                   ),
-                ),
-              ],
+                  Expanded(
+                    flex: 2,
+                    child: _arizaNotuWidget(),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: _extraNotuWidget(),
+                  ),
+                ],
+              ),
             ),
-          ) ,
-
-        ),
-      );
+          ));
     }
   }
 
@@ -228,16 +241,39 @@ class _FirstScreenState extends State<FirstScreen> {
   }
 
   Widget _myPool() {
-    return ListView.builder(
-        itemCount: myPools.length,
-        itemBuilder: (context, i) {
-          return ListTile(
-            title: Text(myPools[i].companyName),
-            subtitle: Text(myPools[i].subject),
-            trailing: _trailinOlustur(myPools[i]),
-            leading: _iconOlustur(myPools[i]),
-          );
-        });
+    return Scaffold(
+      body: ListView.builder(
+          itemCount: myPools.length,
+          itemBuilder: (context, i) {
+            return ListTile(
+              title: Text(myPools[i].companyName),
+              subtitle: Text(myPools[i].subject),
+              trailing: _trailinOlustur(myPools[i]),
+              leading: _iconOlustur(myPools[i]),
+            );
+          }),
+      floatingActionButton: RaisedButton(
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
+        color: Theme.of(context).primaryColor,
+        onPressed: () {
+          _yeniTalepOncesi();
+        },
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+      ),
+    );
+  }
+
+  _yeniTalepOncesi() {
+    setState(() {
+      durum = -1;
+    });
+
+    _getCompanies();
+    _getProjects();
+    _getRequestTypes();
   }
 
   _iconOlustur(GetMyWorkPoolDTO myPool) {
@@ -399,6 +435,17 @@ class _FirstScreenState extends State<FirstScreen> {
         fontSize: 16.0);
   }
 
+  void _basariliToast(String t) {
+    Fluttertoast.showToast(
+        msg: t,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 2,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 16.0);
+  }
+
   Future<void> _trySubmit() async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
@@ -425,5 +472,257 @@ class _FirstScreenState extends State<FirstScreen> {
         _hataToast();
       }
     }
+  }
+
+  Future<void> _trySubmitSave() async {
+    if (_formKeyYeni.currentState.validate()) {
+      _formKeyYeni.currentState.save();
+      NewRequestDTO dto = new NewRequestDTO();
+      dto.itemTypeId = selectedRequestTypeItemId;
+      dto.subject = _yeniTalepKonuText;
+      dto.projectsId = selectedProject;
+      dto.expRequest = _yeniTalepAciklamaText;
+      dto.companyId = selectedCompany;
+      final result = await api.newRequest(dto);
+      if (result == 201) {
+        _basariliToast("Yeni talep girildi");
+        getMyPool();
+        setState(() {
+          durum = 0;
+          selectedServiceType = selectedCompany = selectedProject =
+              selectedRequestType = selectedRequestTypeItemId = null;
+          _yeniTalepAciklamaText = '';
+          _yeniTalepKonuText = '';
+        });
+      } else {
+        _hataToast();
+      }
+    }
+  }
+
+  Widget _yeniTalepOlustur() {
+    return Form(
+      key: _formKeyYeni,
+      child: Padding(
+        padding: EdgeInsets.all(15),
+        child: Column(
+          children: [
+            Expanded(
+              flex: 1,
+              child: _yeniTalepCari(),
+            ),
+            Expanded(
+              flex: 1,
+              child: _yeniTalepProje(),
+            ),
+            Expanded(
+              flex: 1,
+              child: _yeniTalepTalepTipi(),
+            ),
+            Expanded(
+              flex: 1,
+              child: _yeniTalepUrunTuru(),
+            ),
+            Expanded(
+              flex: 1,
+              child: _yeniTalepKonu(),
+            ),
+            Expanded(
+              flex: 1,
+              child: _yeniTalepAciklama(),
+            ),
+            Expanded(
+              flex: 1,
+              child: _yeniTalepButtons(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _getCompanies() async {
+    final result = await api.getCompanies();
+    if (result != null) {
+      setState(() {
+        companies = result;
+      });
+    }
+  }
+
+  Future<void> _getProjects() async {
+    final result = await api.getProjects();
+    if (result != null) {
+      setState(() {
+        projects = result;
+      });
+    }
+  }
+
+  Future<void> _getRequestTypes() async {
+    final result = await api.getRequestTypes();
+    if (result != null) {
+      setState(() {
+        requestTypes = result;
+      });
+    }
+  }
+
+  Future<void> _getItemById(int id) async {
+    final result = await api.getItemById(id);
+    if (result != null) {
+      setState(() {
+        requestTypesById = result;
+      });
+    }
+  }
+
+  _yeniTalepCari() {
+    return DropdownButton(
+      items: companies
+          .map((item) => DropdownMenuItem(
+                child: Text(item.name),
+                value: item.id,
+              ))
+          .toList(),
+      value: selectedCompany,
+      onChanged: (i) {
+        setState(() {
+          selectedCompany = i;
+        });
+      },
+      isExpanded: true,
+      hint: Text("Cari Seçiniz"),
+    );
+  }
+
+  _yeniTalepProje() {
+    return DropdownButton(
+      items: projects
+          .map((item) => DropdownMenuItem(
+                child: Text(item.name),
+                value: item.id,
+              ))
+          .toList(),
+      value: selectedProject,
+      onChanged: (i) {
+        setState(() {
+          selectedProject = i;
+        });
+      },
+      isExpanded: true,
+      hint: Text("Proje"),
+    );
+  }
+
+  _yeniTalepTalepTipi() {
+    return DropdownButton(
+      items: requestTypes
+          .map((item) => DropdownMenuItem(
+                child: Text(item.name),
+                value: item.id,
+              ))
+          .toList(),
+      value: selectedRequestType,
+      onChanged: (i) {
+        _getItemById(i);
+        setState(() {
+          selectedRequestType = i;
+          selectedRequestTypeItemId = null;
+        });
+      },
+      isExpanded: true,
+      hint: Text("Servis tipi"),
+    );
+  }
+
+  _yeniTalepUrunTuru() {
+    return DropdownButton(
+      items: requestTypesById
+          .map((item) => DropdownMenuItem(
+                child: Text(item.name),
+                value: item.id,
+              ))
+          .toList(),
+      value: selectedRequestTypeItemId,
+      onChanged: (i) {
+        setState(() {
+          selectedRequestTypeItemId = i;
+        });
+      },
+      isExpanded: true,
+      hint: Text("Proje"),
+    );
+  }
+
+  _yeniTalepKonu() {
+    return TextFormField(
+      key: ValueKey('talepKonu'),
+      decoration: InputDecoration(labelText: "Konu giriniz"),
+      onSaved: (val) {
+        setState(() {
+          _yeniTalepKonuText = val;
+        });
+      },
+      validator: (value) {
+        if (value.isEmpty || value.length < 5) {
+          return 'Konu yeterli değil';
+        }
+        return null;
+      },
+    );
+  }
+
+  _yeniTalepAciklama() {
+    return TextFormField(
+      key: ValueKey('talepAciklama'),
+      decoration: InputDecoration(labelText: "Açıklama giriniz"),
+      onSaved: (val) {
+        setState(() {
+          _yeniTalepAciklamaText = val;
+        });
+      },
+      validator: (value) {
+        if (value.isEmpty || value.length < 5) {
+          return 'Açıklama yeterli değil';
+        }
+        return null;
+      },
+    );
+  }
+
+  _yeniTalepButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        RaisedButton(
+          color: Colors.red,
+          child: Icon(
+            Icons.close,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            setState(() {
+              durum = 0;
+              getMyPool();
+              getRequestItems(0);
+            });
+          },
+        ),
+        SizedBox(
+          width: 20,
+        ),
+        RaisedButton(
+          color: Colors.blue,
+          child: Text(
+            "Kaydet",
+            style: TextStyle(color: Colors.white),
+          ),
+          onPressed: () {
+            _trySubmitSave();
+          },
+        )
+      ],
+    );
   }
 }
